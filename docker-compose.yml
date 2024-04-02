@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  # Auth service
+  gleam_auth:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # will update later
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASSWORD: admin
+      DB_DATABASE: auth_database
+      JWT_SECRET: temp_secret
+    depends_on:
+      - postgres  # Ensure Postgres is started before Gleam
+
+  # Postgres database
+  postgres:
+    image: postgres:latest
+    ports:
+    - "5432:5432"
+    environment:
+      # Set environment variables for your Postgres instance (replace with your details)
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: auth_database
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persistant storage for Postgres data
+networks:
+  # Define a network for the services to communicate
+  backend:
+    external: true  # This network already exists (modify if needed)
+
+volumes:
+  # Persistent storage volume for Postgres data
+  postgres_data: {}

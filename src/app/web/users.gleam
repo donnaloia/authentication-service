@@ -2,14 +2,21 @@ import app/web.{type Context}
 import gleam/dynamic.{type Dynamic}
 import gleam/http.{Get, Post}
 import gleam/json
+import gleam/list
 import gleam/dict
 import gleam/result.{try}
 import wisp.{type Request, type Response}
 import gleam/pgo
+import gleam/string_builder.{type StringBuilder}
+import app/sql/queries
+import gleam/int
 
-// This request handler is used for requests to `/people`.
-//
-pub fn all(req: Request, ctx: Context) -> Response {
+// This is the type of the records that we are going to be working with.
+pub type User {
+  User(username: String, password: String, email: String)
+}
+
+pub fn get_users_view(req: Request, ctx: Context) -> Response {
   // Dispatch to the appropriate handler based on the HTTP method.
   case req.method {
     Get -> list_users(ctx)
@@ -18,34 +25,8 @@ pub fn all(req: Request, ctx: Context) -> Response {
   }
 }
 
-// This request handler is used for requests to `/people/:id`.
-//
-pub fn one(req: Request, ctx: Context, id: String) -> Response {
-  // Dispatch to the appropriate handler based on the HTTP method.
-  case req.method {
-    Get -> read_user(ctx, id)
-    _ -> wisp.method_not_allowed([Get])
-  }
-}
-
-pub type User {
-  User(name: String, password: String, email: String)
-}
-
-// This handler returns a list of all the people in the database, in JSON
-// format.
-//
 pub fn list_users(ctx: Context) -> Response {
   let result = {
-    // Get all the ids from the database
-    //sql query
-    let get_users =
-      "
-  select
-    id, username, password, email
-  from
-    users"
-
     // This is the decoder for the value returned by the 'users' sql query
     let return_type =
       dynamic.tuple4(
@@ -55,10 +36,9 @@ pub fn list_users(ctx: Context) -> Response {
         dynamic.string,
       )
 
-    let assert Ok(response) = pgo.execute(get_users, ctx.db, [], return_type)
+    let assert Ok(response) =
+      pgo.execute(queries.get_users, ctx.db, [], return_type)
 
-    // Convert the ids into a JSON array of objects.
-    // return a json array of objects from response.rows
     let users =
       json.array(response.rows, fn(row) {
         case row {
@@ -72,72 +52,95 @@ pub fn list_users(ctx: Context) -> Response {
           _ -> json.object([#("id", json.int(0))])
         }
       })
+    // nest users json array in a parent json object for proper api response
+    json.object([#("users", users)])
   }
+  let body = json.to_string_builder(result)
+  wisp.json_response(body, 200)
+}
 
-  case result {
-    // When everything goes well we return a 200 response with the JSON.
-    Ok(users) -> wisp.json_response(users, 200)
-
-    // In a later example we will see how to return specific errors to the user
-    // depending on what went wrong. For now we will just return a 500 error.
-    Error(Nil) -> wisp.internal_server_error()
+pub fn get_user_view(req: Request, ctx: Context, id: String) -> Response {
+  case int.parse(id) {
+    Ok(int_id) -> {
+      let id = int_id
+      case req.method {
+        Get -> get_user(ctx, id)
+        _ -> wisp.method_not_allowed([Get, Post])
+      }
+    }
+    Error(_) -> wisp.bad_request()
   }
+}
+
+pub fn get_user(ctx: Context, id: Int) -> Response {
+  let result = {
+    // This is the decoder for the value returned by the 'users' sql query
+    let return_type =
+      dynamic.tuple4(
+        dynamic.int,
+        dynamic.string,
+        dynamic.string,
+        dynamic.string,
+      )
+
+    let assert Ok(response) =
+      pgo.execute(queries.get_user, ctx.db, [pgo.int(id)], return_type)
+
+    let user = case list.first(response.rows) {
+      Ok(#(id, username, password, email)) ->
+        json.object([
+          #("id", json.int(id)),
+          #("username", json.string(username)),
+          #("password", json.string(password)),
+          #("email", json.string(email)),
+        ])
+      Error(Nil) -> json.object([#("id", json.int(0))])
+    }
+  }
+  let body = json.to_string_builder(result)
+  wisp.json_response(body, 200)
 }
 
 pub fn create_user(req: Request, ctx: Context) -> Response {
   // Read the JSON from the request body.
   use json <- wisp.require_json(req)
+  // Decode the JSON into a User record.
+  let assert Ok(user) = decode_user(json)
 
   let result = {
-    // Decode the JSON into a Person record.
-    use user <- try(decode_user(json))
+    let return_type =
+      dynamic.tuple4(
+        dynamic.int,
+        dynamic.string,
+        dynamic.string,
+        dynamic.string,
+      )
 
     // Save the person to the database.
-    use id <- try(save_to_database(ctx.db, user))
+    let assert Ok(response) =
+      pgo.execute(
+        queries.create_user,
+        ctx.db,
+        [pgo.text(user.username), pgo.text(user.password), pgo.text(user.email)],
+        return_type,
+      )
 
-    // Construct a JSON payload with the id of the newly created person.
-    Ok(json.to_string_builder(json.object([#("id", json.string(id))])))
+    let user = case list.first(response.rows) {
+      Ok(#(id, _, _, _)) -> json.object([#("id", json.int(id))])
+      Error(Nil) -> json.object([#("id", json.int(0))])
+    }
   }
-
-  // Return an appropriate response depending on whether everything went well or
-  // if there was an error.
-  case result {
-    Ok(json) -> wisp.json_response(json, 201)
-    Error(Nil) -> wisp.unprocessable_entity()
-  }
+  let body = json.to_string_builder(result)
+  wisp.json_response(body, 200)
 }
 
-pub fn read_user(ctx: Context, id: String) -> Response {
-  let result = {
-    // Read the person with the given id from the database.
-    use user <- try(read_from_database(ctx.db, id))
-
-    // Construct a JSON payload with the person's details.
-    Ok(
-      json.to_string_builder(
-        json.object([
-          #("id", json.string(id)),
-          #("username", json.string(user.username)),
-          #("password", json.string(user.password)),
-          #("email", json.string(user.email)),
-        ]),
-      ),
-    )
-  }
-
-  // Return an appropriate response.
-  case result {
-    Ok(json) -> wisp.json_response(json, 200)
-    Error(Nil) -> wisp.not_found()
-  }
-}
-
-fn decode_person(json: Dynamic) -> Result(User, Nil) {
+fn decode_user(json: Dynamic) -> Result(User, Nil) {
   let decoder =
-    dynamic.decode2(
+    dynamic.decode3(
       User,
       dynamic.field("username", dynamic.string),
       dynamic.field("password", dynamic.string),
+      dynamic.field("email", dynamic.string),
     )
   let result = decoder(json)
 

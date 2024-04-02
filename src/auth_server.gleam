@@ -3,6 +3,8 @@ import mist
 import wisp
 import app/router
 import app/web
+import gleam/pgo
+import gleam/option
 
 pub const data_directory = "tmp/data"
 
@@ -18,7 +20,7 @@ pub fn main() {
         ..pgo.default_config(),
         user: "admin",
         password: option.Some("admin"),
-        host: "localhost",
+        host: "postgres",
         database: "auth_database",
         pool_size: 15,
       ),
@@ -38,6 +40,5 @@ pub fn main() {
     |> mist.new
     |> mist.port(8000)
     |> mist.start_http
-
   process.sleep_forever()
 }

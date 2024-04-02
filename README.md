@@ -1,20 +1,17 @@
-# temp_proj
+# gleam auth server
 
 [![Package Version](https://img.shields.io/hexpm/v/temp_proj)](https://hex.pm/packages/temp_proj)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/temp_proj/)
 
 ```sh
-gleam add temp_proj
+docker-compose build
+docker-compose up
 ```
-```gleam
-import temp_proj
-
-pub fn main() {
-  // TODO: An example of the project in use
-}
 ```
 
-Further documentation can be found at <https://hexdocs.pm/temp_proj>.
+WIP* docker-compose spins up a postgres instance and gleam auth service.  current endpoints
+GET | POST localhost:8000/users
+GET localhost:8000/users/:id
 
 ## Development
 

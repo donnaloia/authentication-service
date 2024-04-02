@@ -7,7 +7,6 @@
 docker-compose build
 docker-compose up
 ```
-```
 
 WIP* docker-compose spins up a postgres instance and gleam auth service.  current endpoints
 GET | POST localhost:8000/users

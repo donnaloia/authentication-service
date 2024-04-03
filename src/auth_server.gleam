@@ -25,7 +25,6 @@ pub fn main() {
         pool_size: 15,
       ),
     )
-  //use db <- tiny_database.with_connection(data_directory)
 
   // A context is constructed to hold the database connection.
   let context = web.Context(db: db)

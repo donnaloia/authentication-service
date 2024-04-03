@@ -18,6 +18,8 @@ mist = "~> 1.0"
 wisp = "~> 0.14"
 gleam_erlang = "~> 0.25"
 gleam_pgo = "~> 0.6"
+antigone = "~> 1.0"
+argon2_elixir = "~> 4.0"
 
 [dev-dependencies]
 gleeunit = "~> 1.0"

@@ -10,6 +10,8 @@ import gleam/pgo
 import gleam/string_builder.{type StringBuilder}
 import app/sql/queries
 import gleam/int
+import antigone
+import gleam/bit_array
 
 // This is the type of the records that we are going to be working with.
 pub type User {
@@ -116,12 +118,22 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
         dynamic.string,
       )
 
+    // Hash the password before saving it to the database.
+    // convert password to bitarray type
+    // look into salting
+    let password_utf = bit_array.from_string(user.password)
+    let hashed_password = antigone.hash(antigone.hasher(), password_utf)
+
     // Save the person to the database.
     let assert Ok(response) =
       pgo.execute(
         queries.create_user,
         ctx.db,
-        [pgo.text(user.username), pgo.text(user.password), pgo.text(user.email)],
+        [
+          pgo.text(user.username),
+          pgo.text(hashed_password),
+          pgo.text(user.email),
+        ],
         return_type,
       )
 

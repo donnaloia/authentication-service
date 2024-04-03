@@ -12,6 +12,14 @@ pub const get_user = "
   where
     id = $1"
 
+pub const get_user_by_username = "
+  select
+    id, username, password, email
+  from
+    users
+  where
+    username = $1"
+
 pub const create_user = "
   INSERT INTO users
     (username, password, email)

@@ -13,13 +13,15 @@ version = "1.0.0"
 # https://gleam.run/writing-gleam/gleam-toml/. 
 
 [dependencies]
-gleam_stdlib = "~> 0.34 or ~> 1.0"
+gleam_stdlib = "~> 0.35.1"
 mist = "~> 1.0"
 wisp = "~> 0.14"
 gleam_erlang = "~> 0.25"
 gleam_pgo = "~> 0.6"
 antigone = "~> 1.0"
 argon2_elixir = "~> 4.0"
+gwt = "~> 0.3"
+birl = "~> 1.5"
 
 [dev-dependencies]
 gleeunit = "~> 1.0"

@@ -13,6 +13,8 @@ import gleam/int
 import antigone
 import gleam/bit_array
 import gleam/io
+import gwt.{type Jwt}
+import birl
 
 pub fn login_view(req: Request, ctx: Context) -> Response {
   // Dispatch to the appropriate handler based on the HTTP method.
@@ -49,18 +51,15 @@ pub fn login(req: Request, ctx: Context) -> Response {
       )
 
     // TODO: add access/refresh token generation logic
+
     let user = case list.first(response.rows) {
       Ok(#(id, username, password, email)) -> {
-        let p = antigone.verify(password_utf, password)
-        let result = case p {
+        let signed_jwt = create_access_token(username)
+        let verified_pass = antigone.verify(password_utf, password)
+        let result = case verified_pass {
           True ->
             json.object([
-              #(
-                "access_token",
-                json.string(
-                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (access token)",
-                ),
-              ),
+              #("access_token", json.string(signed_jwt)),
               #("expires_at", json.string(username)),
             ])
           False ->
@@ -70,7 +69,6 @@ pub fn login(req: Request, ctx: Context) -> Response {
         }
       }
       Error(Nil) -> {
-        // Handle the error here, for example, return a JSON object with an error message
         json.object([#("error", json.string("Invalid username or password"))])
       }
     }
@@ -96,4 +94,18 @@ fn decode_login(json: Dynamic) -> Result(Login, Nil) {
   // user, so we can discard the error and replace it with Nil.
   result
   |> result.nil_error
+}
+
+fn create_access_token(username: String) -> String {
+  let five_minutes = birl.to_unix(birl.now()) + 300
+  let jti = int.random(1000)
+  let jwt =
+    gwt.new()
+    |> gwt.set_subject(username)
+    |> gwt.set_issued_at(birl.to_unix(birl.now()))
+    |> gwt.set_expiration(five_minutes)
+    |> gwt.set_jwt_id(int.to_string(jti))
+
+  let jwt_without_signature = gwt.to_string(jwt)
+  let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, "secret_key")
 }

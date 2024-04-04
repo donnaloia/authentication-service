@@ -27,3 +27,11 @@ pub const create_user = "
     ($1, $2, $3)
   RETURNING
     *"
+
+pub const create_access_token = "
+  INSERT INTO access_tokens
+    (user_id, token)
+  VALUES
+    ($1, $2)
+  RETURNING
+    *"

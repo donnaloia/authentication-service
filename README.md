@@ -1,40 +1,115 @@
-# gleam auth server
-modern auth server written in Gleam.
 
-# Features
-* REST API endpoints to manage users (see endpoints below)
-* password encryption with argon2
-* login/logout endpoints suited for SPA's or mobile apps
-* endpoint for access-token management
+# Auth Service
 
-# How to run it
-docker-compose spins up a postgres instance and gleam auth service for testing.
+A modern standalone drop-in auth microservice written in gleam.
 
-```sh
-docker-compose build
-docker-compose up
+
+## Features
+
+- REST API endpoints to manage users (see endpoints below)
+- password encryption with argon2
+- login/logout endpoints suited for SPA's or mobile apps
+- full refresh-token and access-token management
+- initial testing suggests performance improvements over comparable auth service written in Flask
+
+
+## Tech Stack
+
+**Containerization:** Docker
+
+**DB:** PostgreSQL
+
+**Server:** Written in Gleam
+
+
+
+
+## Run Locally
+docker-compose spins up a postgres instance and the gleam auth service for testing.
+To deploy this project locally run:
+
+```bash
+  docker-compose build
+  docker-compose up
 ```
 
-# REST API endpoints
-```json
-GET User/s
-GET /api/v1/users
-GET /api/v1/users/:id
 
-Create User
-POST localhost:8000/users
+## REST API Reference
+
+
+#### All endpoints require a valid access-token
+
+
+| HTTP Header | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `bearer <access_token>` | `string` | Your API access token |
+
+#### Get Users
+
+```http
+  GET /api/v1/users/${id}
 ```
 
-# Auth endpoints
-```json
-GET /account/login
-GET /account/logout
-GET /account/refresh-token
 
+#### Get User
+
+```http
+  GET /api/v1/users/${id}
 ```
 
-# Todo
-* refactor a lot of the logic around creating json objects (still learning gleam)
-* add tests
-* support for nosql
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of user to fetch |
+
+
+#### Create User
+
+```http
+  POST /api/v1/users/
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `username`      | `string` | **Required**. Username of user to create|
+| `password`      | `string` | **Required**. Password of user to create|
+| `email`      | `string` | **Required**. Email of user to create|
+
+
+## Login/Logout Endpoints
+
+
+#### Login
+
+```http
+  POST /account/login
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `username`      | `string` | **Required**. username of user logging in |
+
+#### Logout
+
+```http
+  POST /account/logout
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `password`      | `string` | **Required**. password of user logging in |
+
+
+```http
+  POST /refresh-token
+```
+
+
+
+## Todo
+
+
+- refactor views (still learning Gleam)
+- add test coverage
+- nosql support (for auth storage)
+- CLI admin tool
 

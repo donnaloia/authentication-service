@@ -57,8 +57,8 @@ pub fn list_users(ctx: Context) -> Response {
     // nest users json array in a parent json object for proper api response
     json.object([#("users", users)])
   }
-  let body = json.to_string_builder(result)
-  wisp.json_response(body, 200)
+  json.to_string_builder(result)
+  |> wisp.json_response(200)
 }
 
 pub fn get_user_view(req: Request, ctx: Context, id: String) -> Response {
@@ -99,8 +99,8 @@ pub fn get_user(ctx: Context, id: Int) -> Response {
       Error(Nil) -> json.object([#("id", json.int(0))])
     }
   }
-  let body = json.to_string_builder(result)
-  wisp.json_response(body, 200)
+  json.to_string_builder(result)
+  |> wisp.json_response(200)
 }
 
 pub fn create_user(req: Request, ctx: Context) -> Response {
@@ -118,13 +118,10 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
         dynamic.string,
       )
 
-    // Hash the password before saving it to the database.
-    // convert password to bitarray type
-    // look into salting
     let password_utf = bit_array.from_string(user.password)
     let hashed_password = antigone.hash(antigone.hasher(), password_utf)
 
-    // Save the person to the database.
+    // Save the user to the database.
     let assert Ok(response) =
       pgo.execute(
         queries.create_user,
@@ -137,13 +134,13 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
         return_type,
       )
 
-    let user = case list.first(response.rows) {
+    case list.first(response.rows) {
       Ok(#(id, _, _, _)) -> json.object([#("id", json.int(id))])
       Error(Nil) -> json.object([#("id", json.int(0))])
     }
   }
-  let body = json.to_string_builder(result)
-  wisp.json_response(body, 200)
+  json.to_string_builder(result)
+  |> wisp.json_response(200)
 }
 
 fn decode_user(json: Dynamic) -> Result(User, Nil) {
@@ -154,10 +151,7 @@ fn decode_user(json: Dynamic) -> Result(User, Nil) {
       dynamic.field("password", dynamic.string),
       dynamic.field("email", dynamic.string),
     )
-  let result = decoder(json)
 
-  // In this example we are not going to be reporting specific errors to the
-  // user, so we can discard the error and replace it with Nil.
-  result
+  decoder(json)
   |> result.nil_error
 }

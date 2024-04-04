@@ -50,11 +50,9 @@ pub fn login(req: Request, ctx: Context) -> Response {
         return_type,
       )
 
-    // TODO: add access/refresh token generation logic
-
     let user = case list.first(response.rows) {
       Ok(#(id, username, password, email)) -> {
-        let signed_jwt = create_access_token(username)
+        let signed_jwt = create_access_token(ctx, username, id)
         let verified_pass = antigone.verify(password_utf, password)
         let result = case verified_pass {
           True ->
@@ -73,8 +71,8 @@ pub fn login(req: Request, ctx: Context) -> Response {
       }
     }
   }
-  let body = json.to_string_builder(result)
-  wisp.json_response(body, 200)
+  json.to_string_builder(result)
+  |> wisp.json_response(200)
 }
 
 pub type Login {
@@ -96,7 +94,7 @@ fn decode_login(json: Dynamic) -> Result(Login, Nil) {
   |> result.nil_error
 }
 
-fn create_access_token(username: String) -> String {
+fn create_access_token(ctx: Context, username: String, id: Int) -> String {
   let five_minutes = birl.to_unix(birl.now()) + 300
   let jti = int.random(1000)
   let jwt =
@@ -106,6 +104,18 @@ fn create_access_token(username: String) -> String {
     |> gwt.set_expiration(five_minutes)
     |> gwt.set_jwt_id(int.to_string(jti))
 
-  let jwt_without_signature = gwt.to_string(jwt)
+  let return_type = dynamic.tuple3(dynamic.int, dynamic.int, dynamic.string)
+
   let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, "secret_key")
+  // Save the token to the database.
+  let assert Ok(response) =
+    pgo.execute(
+      queries.create_access_token,
+      ctx.db,
+      [pgo.int(id), pgo.text(jwt_with_signature)],
+      return_type,
+    )
+
+  // return the token
+  jwt_with_signature
 }

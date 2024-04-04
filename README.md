@@ -87,6 +87,7 @@ To deploy this project locally run:
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `username`      | `string` | **Required**. username of user logging in |
+| `password`      | `string` | **Required**. password of user logging in |
 
 #### Logout
 
@@ -94,9 +95,9 @@ To deploy this project locally run:
   POST /account/logout
 ```
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `password`      | `string` | **Required**. password of user logging in |
+| HTTP Header | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `bearer <access_token>` | `string` | Your API access token |
 
 
 ```http

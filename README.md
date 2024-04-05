@@ -47,7 +47,7 @@ To deploy this project locally run:
 #### Get Users
 
 ```http
-  GET /api/v1/users/${id}
+  GET /api/v1/users/
 ```
 
 

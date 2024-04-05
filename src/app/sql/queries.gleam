@@ -29,9 +29,21 @@ pub const create_user = "
     *"
 
 pub const create_access_token = "
-  INSERT INTO access_tokens
-    (user_id, token)
-  VALUES
-    ($1, $2)
-  RETURNING
-    *"
+  BEGIN;
+    DELETE FROM
+      access_tokens
+    WHERE
+      user_id = $1;
+    INSERT INTO access_tokens
+      (user_id, token)
+    VALUES
+      ($1, $2)
+    RETURNING
+      *;
+  COMMIT;"
+
+pub const delete_access_token = "
+  DELETE FROM
+    access_tokens
+  WHERE
+    token = $1;"

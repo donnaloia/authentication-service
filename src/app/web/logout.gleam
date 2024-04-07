@@ -1,6 +1,7 @@
 import app/web.{type Context}
 import gleam/dynamic.{type Dynamic}
 import gleam/http.{Get, Post}
+import gleam/http/request.{get_header}
 import gleam/json
 import gleam/list
 import gleam/dict
@@ -13,6 +14,7 @@ import gleam/int
 import antigone
 import gleam/bit_array
 import gleam/io
+import gleam/string
 import gwt.{type Jwt, type Unverified, type Verified}
 
 pub fn logout_view(req: Request, ctx: Context) -> Response {
@@ -24,35 +26,27 @@ pub fn logout_view(req: Request, ctx: Context) -> Response {
 }
 
 pub fn logout(req: Request, ctx: Context) -> Response {
-  todo
   //   // Check http header for access-token
-  //   let auth_token = mist.get_header(req, "Authorization")
-  //     let token = case auth_token {
-  //         Some(token) -> token
-  //         None -> return wisp.unauthorized("No token provided")
-  //     }
+  let auth_token = get_header(req, "Authorization")
+  let token =
+    case auth_token {
+      Ok(auth_token) -> string.drop_left(auth_token, 8)
+      Error(_) -> "No token provided"
+    }
+    |> io.debug()
+  io.debug("auth_token is: ")
 
-  //       let return_type =
-  //       dynamic.tuple4(
-  //         dynamic.int,
-  //         dynamic.string,
-  //         dynamic.string,
-  //         dynamic.string,
-  //       )
+  let delete_return_type = dynamic.dynamic
 
-  //   // If access-token is valid, delete it from the database
-  //     let result = {
-  //         let return_type = dynamic.tuple1(dynamic.int)
-  //         let assert Ok(response) =
-  //         pgo.execute(
-  //             queries.delete_access_token,
-  //             ctx.db,
-  //             [pgo.text(token)],
-  //             return_type,
-  //         )
-  //         json.object([#("message", json.string("Successfully logged out"))])
-  //     }
+  let assert Ok(response) =
+    pgo.execute(
+      queries.delete_access_token,
+      ctx.db,
+      [pgo.text(token)],
+      delete_return_type,
+    )
 
-  //   let body = json.to_string_builder(result)
-  //   wisp.json_response(body, 200)
+  json.object([#("message", json.string("Successfully logged out"))])
+  |> json.to_string_builder()
+  |> wisp.json_response(200)
 }

@@ -13,7 +13,7 @@ services:
       DB_USER: admin
       DB_PASSWORD: admin
       DB_DATABASE: auth_database
-      JWT_SECRET: temp_secret
+      SECRET_KEY: temp_secret
     depends_on:
       - postgres  # Ensure Postgres is started before Gleam
 

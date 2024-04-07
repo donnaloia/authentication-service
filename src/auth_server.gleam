@@ -5,12 +5,18 @@ import app/router
 import app/web
 import gleam/pgo
 import gleam/option
+import gleam/erlang/os
+import gleam/result
 
 pub const data_directory = "tmp/data"
 
 pub fn main() {
   wisp.configure_logger()
-  let secret_key_base = wisp.random_string(64)
+  let secret_key_base = load_application_secret()
+  let db_user = load_postgres_user()
+  let db_password = load_postgres_password()
+  let db_auth_database = load_postgres_auth_database()
+  let db_host = load_postgres_host()
 
   // A database creation is created here, when the program starts.
   // This connection is used by all requests.
@@ -18,10 +24,10 @@ pub fn main() {
     pgo.connect(
       pgo.Config(
         ..pgo.default_config(),
-        user: "admin",
-        password: option.Some("admin"),
-        host: "postgres",
-        database: "auth_database",
+        user: db_user,
+        password: option.Some(db_password),
+        host: db_host,
+        database: db_auth_database,
         pool_size: 15,
       ),
     )
@@ -40,4 +46,30 @@ pub fn main() {
     |> mist.port(8000)
     |> mist.start_http
   process.sleep_forever()
+}
+
+fn load_application_secret() -> String {
+  os.get_env("SECRET_KEY")
+  |> result.unwrap("APPLICATION_SECRET is not set.")
+}
+
+fn load_postgres_user() -> String {
+  os.get_env("DB_USER")
+  |> result.unwrap("POSTGRES_USER is not set.")
+}
+
+fn load_postgres_password() -> String {
+  os.get_env("DB_PASSWORD")
+  |> result.unwrap("POSTGRES_PASSWORD is not set.")
+}
+
+fn load_postgres_auth_database() -> String {
+  os.get_env("DB_DATABASE")
+  |> result.unwrap("POSTGRES_AUTH_DATABASE is not set.")
+}
+
+fn load_postgres_host() -> String {
+  "postgres"
+  // os.get_env("DB_HOST")
+  // |> result.unwrap("DB_HOST is not set.")
 }

@@ -88,8 +88,6 @@ fn decode_login(json: Dynamic) -> Result(Login, Nil) {
     )
   let result = decoder(json)
 
-  // In this example we are not going to be reporting specific errors to the
-  // user, so we can discard the error and replace it with Nil.
   result
   |> result.nil_error
 }
@@ -105,9 +103,17 @@ fn create_access_token(ctx: Context, username: String, id: Int) -> String {
     |> gwt.set_jwt_id(int.to_string(jti))
 
   let return_type = dynamic.tuple3(dynamic.int, dynamic.int, dynamic.string)
-
-  let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, "secret_key")
+  let delete_return_type = dynamic.dynamic
+  let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, secret_key_base)
   // Save the token to the database.
+
+  let assert Ok(response) =
+    pgo.execute(
+      queries.delete_access_token_by_user,
+      ctx.db,
+      [pgo.int(id)],
+      delete_return_type,
+    )
   let assert Ok(response) =
     pgo.execute(
       queries.create_access_token,

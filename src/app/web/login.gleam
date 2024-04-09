@@ -1,6 +1,7 @@
 import app/web.{type Context}
 import gleam/dynamic.{type Dynamic}
 import gleam/http.{Get, Post}
+import app/users/types
 import gleam/json
 import gleam/list
 import gleam/dict
@@ -30,49 +31,44 @@ pub fn login(req: Request, ctx: Context) -> Response {
   // Decode the JSON into a User record.
   let assert Ok(user) = decode_login(json)
 
-  let result = {
-    // This is the decoder for the value returned by the 'users' sql query
-    let return_type =
-      dynamic.tuple4(
-        dynamic.int,
-        dynamic.string,
-        dynamic.string,
-        dynamic.string,
-      )
+  let password_utf = bit_array.from_string(user.password)
 
-    let password_utf = bit_array.from_string(user.password)
+  let assert Ok(response) =
+    pgo.execute(
+      queries.get_user_by_username,
+      ctx.db,
+      [pgo.text(user.username)],
+      types.user_return_type(),
+    )
 
-    let assert Ok(response) =
-      pgo.execute(
-        queries.get_user_by_username,
-        ctx.db,
-        [pgo.text(user.username)],
-        return_type,
-      )
+  case list.first(response.rows) {
+    Ok(#(id, username, password, email)) -> {
+      let signed_jwt = create_access_token(ctx, username, id)
+      let expires_at = int.to_string(birl.to_unix(birl.now()) + 900)
+      let verified_pass = antigone.verify(password_utf, password)
 
-    let user = case list.first(response.rows) {
-      Ok(#(id, username, password, email)) -> {
-        let signed_jwt = create_access_token(ctx, username, id)
-        let verified_pass = antigone.verify(password_utf, password)
-        let result = case verified_pass {
-          True ->
-            json.object([
-              #("access_token", json.string(signed_jwt)),
-              #("expires_at", json.string(username)),
-            ])
-          False ->
-            json.object([
-              #("error", json.string("Invalid username or password")),
-            ])
+      case verified_pass {
+        True -> {
+          json.object([
+            #("access_token", json.string(signed_jwt)),
+            #("expires_at", json.string(expires_at)),
+          ])
+          |> json.to_string_builder()
+          |> wisp.json_response(200)
+        }
+        False -> {
+          json.object([#("error", json.string("Invalid username or password"))])
+          |> json.to_string_builder()
+          |> wisp.json_response(401)
         }
       }
-      Error(Nil) -> {
-        json.object([#("error", json.string("Invalid username or password"))])
-      }
+    }
+    Error(Nil) -> {
+      json.object([#("error", json.string("Invalid username or password."))])
+      |> json.to_string_builder()
+      |> wisp.json_response(401)
     }
   }
-  json.to_string_builder(result)
-  |> wisp.json_response(200)
 }
 
 pub type Login {
@@ -93,18 +89,18 @@ fn decode_login(json: Dynamic) -> Result(Login, Nil) {
 }
 
 fn create_access_token(ctx: Context, username: String, id: Int) -> String {
-  let five_minutes = birl.to_unix(birl.now()) + 300
+  let fifteen_minutes = birl.to_unix(birl.now()) + 900
   let jti = int.random(1000)
   let jwt =
     gwt.new()
     |> gwt.set_subject(username)
     |> gwt.set_issued_at(birl.to_unix(birl.now()))
-    |> gwt.set_expiration(five_minutes)
+    |> gwt.set_expiration(fifteen_minutes)
     |> gwt.set_jwt_id(int.to_string(jti))
 
   let return_type = dynamic.tuple3(dynamic.int, dynamic.int, dynamic.string)
   let delete_return_type = dynamic.dynamic
-  let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, secret_key_base)
+  let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, ctx.secret_key)
   // Save the token to the database.
 
   let assert Ok(response) =

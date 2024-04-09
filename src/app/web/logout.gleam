@@ -26,15 +26,11 @@ pub fn logout_view(req: Request, ctx: Context) -> Response {
 }
 
 pub fn logout(req: Request, ctx: Context) -> Response {
-  //   // Check http header for access-token
   let auth_token = get_header(req, "Authorization")
-  let token =
-    case auth_token {
-      Ok(auth_token) -> string.drop_left(auth_token, 8)
-      Error(_) -> "No token provided"
-    }
-    |> io.debug()
-  io.debug("auth_token is: ")
+  let token = case auth_token {
+    Ok(auth_token) -> string.drop_left(auth_token, 8)
+    Error(_) -> "No token provided"
+  }
 
   let delete_return_type = dynamic.dynamic
 

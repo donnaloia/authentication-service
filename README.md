@@ -108,9 +108,9 @@ To deploy this project locally run:
 
 ## Todo
 
-
+- api doc server
 - refactor views (still learning Gleam)
 - add test coverage
-- nosql support (for auth storage)
+- nosql support (for token storage)
 - CLI admin tool
 

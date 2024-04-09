@@ -26,7 +26,6 @@ pub fn verify_auth_header(req: Request, ctx: Context) -> Bool {
   }
 
   let jwt_with_signature = gwt.from_signed_string(jwt, ctx.secret_key)
-  // debug statement above returns Ok(Jwt(dict.from_list([#("alg", "HS256"), #("typ", "JWT")]), dict.from_list([#("exp", 1712596662), #("iat", 1712595762), #("jti", "846"), #("sub", "milkman5")])))
   // instead of parsing through this we can just use gwt function to get expiration and subscriber
   case jwt_with_signature {
     Ok(jwt) -> True

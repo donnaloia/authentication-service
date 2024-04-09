@@ -22,6 +22,8 @@ antigone = "~> 1.0"
 argon2_elixir = "~> 4.0"
 gwt = "~> 0.3"
 birl = "~> 1.5"
+gleam_json = "~> 1.0"
+gleam_http = "~> 3.6"
 
 [dev-dependencies]
 gleeunit = "~> 1.0"

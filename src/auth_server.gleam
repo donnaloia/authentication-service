@@ -12,7 +12,7 @@ pub const data_directory = "tmp/data"
 
 pub fn main() {
   wisp.configure_logger()
-  let secret_key_base = load_application_secret()
+  let secret_key = load_application_secret()
   let db_user = load_postgres_user()
   let db_password = load_postgres_password()
   let db_auth_database = load_postgres_auth_database()
@@ -33,7 +33,7 @@ pub fn main() {
     )
 
   // A context is constructed to hold the database connection.
-  let context = web.Context(db: db)
+  let context = web.Context(db: db, secret_key: secret_key)
 
   // The handle_request function is partially applied with the context to make
   // the request handler function that only takes a request.
@@ -41,7 +41,7 @@ pub fn main() {
 
   let assert Ok(_) =
     handler
-    |> wisp.mist_handler(secret_key_base)
+    |> wisp.mist_handler(secret_key)
     |> mist.new
     |> mist.port(8000)
     |> mist.start_http

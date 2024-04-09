@@ -9,7 +9,7 @@ import gleam/pgo
 // tests for mock implementations), configuration, and so on.
 //
 pub type Context {
-  Context(db: pgo.Connection)
+  Context(db: pgo.Connection, secret_key: String)
 }
 
 pub fn middleware(

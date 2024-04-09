@@ -1,21 +1,12 @@
 import app/web.{type Context}
-import gleam/dynamic.{type Dynamic}
+import app/users/types
+import app/sql/queries
 import gleam/http.{Get, Post}
 import gleam/http/request.{get_header}
 import gleam/json
-import gleam/list
-import gleam/dict
-import gleam/result.{try}
 import wisp.{type Request, type Response}
 import gleam/pgo
-import gleam/string_builder.{type StringBuilder}
-import app/sql/queries
-import gleam/int
-import antigone
-import gleam/bit_array
-import gleam/io
 import gleam/string
-import gwt.{type Jwt, type Unverified, type Verified}
 
 pub fn logout_view(req: Request, ctx: Context) -> Response {
   // Dispatch to the appropriate handler based on the HTTP method.
@@ -27,22 +18,26 @@ pub fn logout_view(req: Request, ctx: Context) -> Response {
 
 pub fn logout(req: Request, ctx: Context) -> Response {
   let auth_token = get_header(req, "Authorization")
-  let token = case auth_token {
-    Ok(auth_token) -> string.drop_left(auth_token, 8)
-    Error(_) -> "No token provided"
+  case auth_token {
+    Ok(auth_token) -> {
+      let token = string.drop_left(auth_token, 8)
+      let assert Ok(_) =
+        pgo.execute(
+          queries.delete_access_token,
+          ctx.db,
+          [pgo.text(token)],
+          types.delete_user_return_type(),
+        )
+      json.object([#("message", json.string("Successfully logged out"))])
+      |> json.to_string_builder()
+      |> wisp.json_response(204)
+    }
+    Error(_) -> {
+      json.object([
+        #("error", json.string("Missing or malformed authorization header.")),
+      ])
+      |> json.to_string_builder()
+      |> wisp.json_response(401)
+    }
   }
-
-  let delete_return_type = dynamic.dynamic
-
-  let assert Ok(response) =
-    pgo.execute(
-      queries.delete_access_token,
-      ctx.db,
-      [pgo.text(token)],
-      delete_return_type,
-    )
-
-  json.object([#("message", json.string("Successfully logged out"))])
-  |> json.to_string_builder()
-  |> wisp.json_response(200)
 }

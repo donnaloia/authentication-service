@@ -13,7 +13,7 @@ pub fn get_auth_header(req: Request) -> #(Bool, String) {
       let token = string.drop_left(auth_token, 7)
       #(True, token)
     }
-    Error(_) -> #(False, "No token provided")
+    Error(_) -> #(False, "mi")
   }
 }
 

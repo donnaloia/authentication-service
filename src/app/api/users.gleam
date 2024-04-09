@@ -3,11 +3,9 @@ import gleam/dynamic.{type Dynamic}
 import gleam/http.{Get, Post}
 import gleam/json
 import gleam/list
-import gleam/dict
-import gleam/result.{try}
+import gleam/result
 import wisp.{type Request, type Response}
 import gleam/pgo
-import gleam/string_builder.{type StringBuilder}
 import app/sql/queries
 import gleam/int
 import antigone

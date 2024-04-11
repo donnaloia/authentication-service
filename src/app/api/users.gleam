@@ -27,11 +27,11 @@ pub fn list_users(req: Request, ctx: Context) -> Response {
   let authorized = access_tokens.verify_access_token(req, ctx)
   case authorized {
     True -> {
-      let assert Ok(response) =
+      let assert Ok(db_response) =
         pgo.execute(queries.get_users, ctx.db, [], types.user_return_type())
 
       let users =
-        json.array(response.rows, fn(row) {
+        json.array(db_response.rows, fn(row) {
           case row {
             #(id, username, password, email) -> {
               json.object([
@@ -68,7 +68,7 @@ pub fn get_user(req: Request, ctx: Context, id: String) -> Response {
   let authorized = access_tokens.verify_access_token(req, ctx)
   case authorized {
     True -> {
-      let assert Ok(response) =
+      let assert Ok(db_response) =
         pgo.execute(
           queries.get_user,
           ctx.db,
@@ -76,7 +76,7 @@ pub fn get_user(req: Request, ctx: Context, id: String) -> Response {
           types.user_return_type(),
         )
 
-      case list.first(response.rows) {
+      case list.first(db_response.rows) {
         Ok(#(id, username, password, email)) -> {
           json.object([
             #("id", json.string(id)),

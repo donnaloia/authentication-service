@@ -1,14 +1,29 @@
+import gwt
+import gleam/dynamic
 import app/web.{type Context}
 import app/sql/queries
-import gleam/dynamic.{type Dynamic}
 import gleam/int
-import gleam/json
 import gleam/pgo
-import gwt
+import gleam/list
+import app/users/types
 import birl
-import wisp.{type Request, type Response}
-import gleam/io
 
+// get id, user_uuid and token from refresh token
+pub fn get_refresh_token(ctx: Context, user_uuid: String) -> String {
+  let assert Ok(db_response) =
+    pgo.execute(
+      queries.get_refresh_token_by_user_id,
+      ctx.db,
+      [pgo.text(user_uuid)],
+      types.refresh_token_return_type(),
+    )
+  case list.first(db_response.rows) {
+    Ok(#(_id, _user_id, token)) -> token
+    Error(_) -> "no token found"
+  }
+}
+
+// create new refresh token
 pub fn create_refresh_token(ctx: Context, user_uuid: String) -> String {
   let one_month = birl.to_unix(birl.now()) + 2_628_288
   let jti = int.random(1000)
@@ -23,8 +38,8 @@ pub fn create_refresh_token(ctx: Context, user_uuid: String) -> String {
   let return_type = dynamic.tuple3(dynamic.int, dynamic.string, dynamic.string)
   let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, ctx.secret_key)
 
-  // Save refresh-token to the database.
-  let assert Ok(_) =
+  // saves refresh-token to the database.
+  let assert Ok(_db_response) =
     pgo.execute(
       queries.create_refresh_token,
       ctx.db,
@@ -35,23 +50,11 @@ pub fn create_refresh_token(ctx: Context, user_uuid: String) -> String {
   jwt_with_signature
 }
 
-pub fn create_access_token(ctx: Context, id: String) -> String {
-  let fifteen_minutes = birl.to_unix(birl.now()) + 900
-  let jti = int.random(1000)
-  let jwt =
-    gwt.new()
-    |> gwt.set_subject(id)
-    |> gwt.set_issued_at(birl.to_unix(birl.now()))
-    |> gwt.set_expiration(fifteen_minutes)
-    |> gwt.set_jwt_id(int.to_string(jti))
-    |> gwt.set_issuer("access-token")
-
-  let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, ctx.secret_key)
-  // note: access-tokens are not saved to the database
-  jwt_with_signature
-}
-
-pub fn read_refresh_token(ctx: Context, jwt: String) -> #(Bool, String, String) {
+// returns the user_uuid from refresh token
+pub fn get_user_from_refresh_token(
+  ctx: Context,
+  jwt: String,
+) -> #(Bool, String, String) {
   let jwt = gwt.from_signed_string(jwt, ctx.secret_key)
   case jwt {
     Ok(jwt) -> {

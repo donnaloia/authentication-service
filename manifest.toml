@@ -5,7 +5,7 @@ packages = [
   { name = "antigone", version = "1.0.0", build_tools = ["gleam"], requirements = ["argon2_elixir"], otp_app = "antigone", source = "hex", outer_checksum = "EAD969F3B9B52714B438E7E1689E381DEF7359BBA0D07DA0A5EAFC56BB668AF9" },
   { name = "argon2_elixir", version = "4.0.0", build_tools = ["mix", "make"], requirements = ["comeonin", "elixir_make"], otp_app = "argon2_elixir", source = "hex", outer_checksum = "F9DA27CF060C9EA61B1BD47837A28D7E48A8F6FA13A745E252556C14F9132C7F" },
   { name = "backoff", version = "1.1.6", build_tools = ["rebar3"], requirements = [], otp_app = "backoff", source = "hex", outer_checksum = "CF0CFFF8995FB20562F822E5CC47D8CCF664C5ECDC26A684CBE85C225F9D7C39" },
-  { name = "birl", version = "1.6.0", build_tools = ["gleam"], requirements = ["gleam_stdlib", "ranger"], otp_app = "birl", source = "hex", outer_checksum = "0757CFE97DA52F19BC3262AC3DD284D9DAD2718D4C1830888DE483FB147477D4" },
+  { name = "birl", version = "1.5.0", build_tools = ["gleam"], requirements = ["gleam_stdlib", "ranger"], otp_app = "birl", source = "hex", outer_checksum = "23BFE5AB0D7D9E4ECC5BB89B7ABDDF8E976D98C65D2E173D116E6AAFBF24E633" },
   { name = "castore", version = "1.0.6", build_tools = ["mix"], requirements = [], otp_app = "castore", source = "hex", outer_checksum = "374C6E7CA752296BE3D6780A6D5B922854FFCC74123DA90F2F328996B962D33A" },
   { name = "certifi", version = "2.13.0", build_tools = ["rebar3"], requirements = [], otp_app = "certifi", source = "hex", outer_checksum = "8F3D9533A0F06070AFDFD5D596B32E21C6580667A492891851B0E2737BC507A1" },
   { name = "comeonin", version = "5.4.0", build_tools = ["mix"], requirements = [], otp_app = "comeonin", source = "hex", outer_checksum = "796393A9E50D01999D56B7B8420AB0481A7538D0CAF80919DA493B4A6E51FAF1" },
@@ -18,9 +18,10 @@ packages = [
   { name = "gleam_json", version = "1.0.0", build_tools = ["gleam"], requirements = ["gleam_stdlib", "thoas"], otp_app = "gleam_json", source = "hex", outer_checksum = "8B197DD5D578EA6AC2C0D4BDC634C71A5BCA8E7DB5F47091C263ECB411A60DF3" },
   { name = "gleam_otp", version = "0.10.0", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_stdlib"], otp_app = "gleam_otp", source = "hex", outer_checksum = "0B04FE915ACECE539B317F9652CAADBBC0F000184D586AAAF2D94C100945D72B" },
   { name = "gleam_pgo", version = "0.6.1", build_tools = ["gleam"], requirements = ["gleam_stdlib", "pgo"], otp_app = "gleam_pgo", source = "hex", outer_checksum = "18A4940471BA798AA1FB85CD6E6D035A7403F66C4A2F19CDD471E0DA450C3633" },
-  { name = "gleam_stdlib", version = "0.36.0", build_tools = ["gleam"], requirements = [], otp_app = "gleam_stdlib", source = "hex", outer_checksum = "C0D14D807FEC6F8A08A7C9EF8DFDE6AE5C10E40E21325B2B29365965D82EB3D4" },
-  { name = "gleeunit", version = "1.0.2", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleeunit", source = "hex", outer_checksum = "D364C87AFEB26BDB4FB8A5ABDE67D635DC9FA52D6AB68416044C35B096C6882D" },
+  { name = "gleam_stdlib", version = "0.35.1", build_tools = ["gleam"], requirements = [], otp_app = "gleam_stdlib", source = "hex", outer_checksum = "5443EEB74708454B65650FEBBB1EF5175057D1DEC62AEA9D7C6D96F41DA79152" },
+  { name = "gleeunit", version = "1.1.2", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleeunit", source = "hex", outer_checksum = "72CDC3D3F719478F26C4E2C5FED3E657AC81EC14A47D2D2DEBB8693CA3220C3B" },
   { name = "glisten", version = "2.0.0", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_otp", "gleam_stdlib"], otp_app = "glisten", source = "hex", outer_checksum = "CF3A9383E9BA4A8CBAF2F7B799716290D02F2AC34E7A77556B49376B662B9314" },
+  { name = "gwt", version = "0.3.0", build_tools = ["gleam"], requirements = ["birl", "gleam_crypto", "gleam_json", "gleam_stdlib"], otp_app = "gwt", source = "hex", outer_checksum = "D167C48E7B13FD61FC3B814FCCF9F6A5ECFF9E5AC0E9BF8933B0B3E908C8A880" },
   { name = "hpack_erl", version = "0.3.0", build_tools = ["rebar3"], requirements = [], otp_app = "hpack", source = "hex", outer_checksum = "D6137D7079169D8C485C6962DFE261AF5B9EF60FBC557344511C1E65E3D95FB0" },
   { name = "logging", version = "1.0.1", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "logging", source = "hex", outer_checksum = "82C112ED9B6C30C1772A6FE2613B94B13F62EA35F5869A2630D13948D297BD39" },
   { name = "marceau", version = "1.1.0", build_tools = ["gleam"], requirements = [], otp_app = "marceau", source = "hex", outer_checksum = "1AAD727A30BE0F95562C3403BB9B27C823797AD90037714255EEBF617B1CDA81" },
@@ -29,18 +30,24 @@ packages = [
   { name = "opentelemetry_semantic_conventions", version = "0.2.0", build_tools = ["rebar3", "mix"], requirements = [], otp_app = "opentelemetry_semantic_conventions", source = "hex", outer_checksum = "D61FA1F5639EE8668D74B527E6806E0503EFC55A42DB7B5F39939D84C07D6895" },
   { name = "pg_types", version = "0.4.0", build_tools = ["rebar3"], requirements = [], otp_app = "pg_types", source = "hex", outer_checksum = "B02EFA785CAECECF9702C681C80A9CA12A39F9161A846CE17B01FB20AEEED7EB" },
   { name = "pgo", version = "0.14.0", build_tools = ["rebar3"], requirements = ["backoff", "opentelemetry_api", "pg_types"], otp_app = "pgo", source = "hex", outer_checksum = "71016C22599936E042DC0012EE4589D24C71427D266292F775EBF201D97DF9C9" },
-  { name = "ranger", version = "1.2.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "ranger", source = "hex", outer_checksum = "1566C272B1D141B3BBA38B25CB761EF56E312E79EC0E2DFD4D3C19FB0CC1F98C" },
+  { name = "ranger", version = "1.1.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "ranger", source = "hex", outer_checksum = "28E615AE7590ED922AF1510DDF606A2ECBBC2A9609AF36D412EDC925F06DFD20" },
   { name = "simplifile", version = "1.6.1", build_tools = ["gleam"], requirements = ["filepath", "gleam_stdlib"], otp_app = "simplifile", source = "hex", outer_checksum = "B75D3C64E526D9D7EDEED5F3BA31DAAF5F2B4D80A4183FE17FDB02ED526E4E96" },
   { name = "thoas", version = "0.4.1", build_tools = ["rebar3"], requirements = [], otp_app = "thoas", source = "hex", outer_checksum = "4918D50026C073C4AB1388437132C77A6F6F7C8AC43C60C13758CC0ADCE2134E" },
   { name = "wisp", version = "0.14.0", build_tools = ["gleam"], requirements = ["exception", "gleam_crypto", "gleam_erlang", "gleam_http", "gleam_json", "gleam_stdlib", "logging", "marceau", "mist", "simplifile"], otp_app = "wisp", source = "hex", outer_checksum = "9F5453AF1F9275E6F8707BC815D6A6A9DF41551921B16FBDBA52883773BAE684" },
+  { name = "youid", version = "1.0.0", build_tools = ["gleam"], requirements = ["gleam_crypto", "gleam_erlang", "gleam_stdlib"], otp_app = "youid", source = "hex", outer_checksum = "D0ECB8C57449866A1B1A83964EEEA72160BF8E05F8F2EEA540BD0F1626FA94E2" },
 ]
 
 [requirements]
 antigone = { version = "~> 1.0" }
 argon2_elixir = { version = "~> 4.0" }
+birl = { version = "~> 1.5" }
 gleam_erlang = { version = "~> 0.25" }
+gleam_http = { version = "~> 3.6" }
+gleam_json = { version = "~> 1.0" }
 gleam_pgo = { version = "~> 0.6" }
-gleam_stdlib = { version = "~> 0.34 or ~> 1.0" }
+gleam_stdlib = { version = "~> 0.35" }
 gleeunit = { version = "~> 1.0" }
+gwt = { version = "~> 0.3" }
 mist = { version = "~> 1.0" }
 wisp = { version = "~> 0.14" }
+youid = { version = "~> 1.0" }

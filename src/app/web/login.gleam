@@ -8,13 +8,11 @@ import gleam/result
 import wisp.{type Request, type Response}
 import gleam/pgo
 import app/sql/queries
-import app/auth/check_tokens
-import app/auth/manage_tokens
+import app/auth/refresh_tokens
+import app/auth/access_tokens
 import gleam/int
 import antigone
 import gleam/bit_array
-import gleam/io
-import gwt
 import birl
 
 pub fn login_view(req: Request, ctx: Context) -> Response {
@@ -31,9 +29,7 @@ pub fn login(req: Request, ctx: Context) -> Response {
   // Decode the JSON into a User record.
   let assert Ok(user) = decode_login(json)
 
-  let password_utf = bit_array.from_string(user.password)
-
-  let assert Ok(response) =
+  let assert Ok(db_response) =
     pgo.execute(
       queries.get_user_by_username,
       ctx.db,
@@ -41,11 +37,12 @@ pub fn login(req: Request, ctx: Context) -> Response {
       types.user_return_type(),
     )
 
-  case list.first(response.rows) {
-    Ok(#(id, username, password, _email)) -> {
-      let signed_jwt = manage_tokens.create_access_token(ctx, id)
-      let refresh_token = check_tokens.get_refresh_token(ctx, id)
+  case list.first(db_response.rows) {
+    Ok(#(id, _username, password, _email)) -> {
+      let signed_jwt = access_tokens.create_access_token(ctx, id)
+      let refresh_token = refresh_tokens.get_refresh_token(ctx, id)
       let expires_at = int.to_string(birl.to_unix(birl.now()) + 900)
+      let password_utf = bit_array.from_string(user.password)
       let verified_pass = antigone.verify(password_utf, password)
 
       case verified_pass {

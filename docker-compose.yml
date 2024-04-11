@@ -23,16 +23,14 @@ services:
     ports:
     - "5432:5432"
     environment:
-      # Set environment variables for your Postgres instance (replace with your details)
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: auth_database
     volumes:
       - postgres_data:/var/lib/postgresql/data  # Persistant storage for Postgres data
 networks:
-  # Define a network for the services to communicate
   backend:
-    external: true  # This network already exists (modify if needed)
+    external: true
 
 volumes:
   # Persistent storage volume for Postgres data

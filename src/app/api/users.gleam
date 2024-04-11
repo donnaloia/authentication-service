@@ -7,14 +7,12 @@ import gleam/result
 import wisp.{type Request, type Response}
 import gleam/pgo
 import app/sql/queries
-import gleam/int
 import antigone
 import gleam/bit_array
-import app/auth/check_tokens
-import gleam/io
 import youid/uuid
 import app/users/types
-import app/auth/manage_tokens
+import app/auth/access_tokens
+import app/auth/refresh_tokens
 
 pub fn get_users_view(req: Request, ctx: Context) -> Response {
   // Dispatch to the appropriate handler based on the HTTP method.
@@ -26,7 +24,7 @@ pub fn get_users_view(req: Request, ctx: Context) -> Response {
 }
 
 pub fn list_users(req: Request, ctx: Context) -> Response {
-  let authorized = check_tokens.verify_auth_header(req, ctx)
+  let authorized = access_tokens.verify_access_token(req, ctx)
   case authorized {
     True -> {
       let assert Ok(response) =
@@ -67,7 +65,7 @@ pub fn get_user_view(req: Request, ctx: Context, id: String) -> Response {
 }
 
 pub fn get_user(req: Request, ctx: Context, id: String) -> Response {
-  let authorized = check_tokens.verify_auth_header(req, ctx)
+  let authorized = access_tokens.verify_access_token(req, ctx)
   case authorized {
     True -> {
       let assert Ok(response) =
@@ -117,7 +115,7 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
   let hashed_password = antigone.hash(antigone.hasher(), password_utf)
   let user_id = uuid.v4_string()
 
-  let assert Ok(response) =
+  let assert Ok(db_response) =
     pgo.execute(
       queries.get_user_by_username,
       ctx.db,
@@ -125,7 +123,7 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
       types.user_return_type(),
     )
 
-  case list.first(response.rows) {
+  case list.first(db_response.rows) {
     Ok(#(_id, _username, _password, _email)) -> {
       // A user with the same username already exists.
       json.object([#("error", json.string("Username already exists."))])
@@ -134,7 +132,7 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
     }
     Error(Nil) -> {
       // No user with username exists
-      let assert Ok(response) =
+      let assert Ok(db_response) =
         pgo.execute(
           queries.create_user,
           ctx.db,
@@ -147,9 +145,9 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
           types.user_return_type(),
         )
 
-      case list.first(response.rows) {
+      case list.first(db_response.rows) {
         Ok(#(id, _, _, _)) -> {
-          manage_tokens.create_refresh_token(ctx, id)
+          refresh_tokens.create_refresh_token(ctx, id)
           json.object([#("id", json.string(id))])
           |> json.to_string_builder()
           |> wisp.json_response(201)

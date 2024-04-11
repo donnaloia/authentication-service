@@ -10,7 +10,7 @@ pub fn handle_request(req: Request, ctx: Context) -> Response {
 
   case wisp.path_segments(req) {
     ["users"] -> users.get_users_view(req, ctx)
-    ["users", id] -> users.get_user_view(req, ctx, id)
+    ["users", uuid] -> users.get_user_view(req, ctx, uuid)
     ["login"] -> login.login_view(req, ctx)
     ["logout"] -> logout.logout_view(req, ctx)
     ["refresh-token"] -> refresh_token.refresh_token_view(req, ctx)

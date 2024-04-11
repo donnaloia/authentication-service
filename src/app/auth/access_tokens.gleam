@@ -1,13 +1,13 @@
-import wisp.{type Request}
-import gleam/http/request.{get_header}
-import gleam/string
-import gwt.{type Jwt, type JwtDecodeError, TokenExpired}
 import app/web.{type Context}
-import app/sql/queries
-import gleam/io
-import gleam/pgo
-import gleam/list
-import app/users/types
+import gleam/http/request.{get_header}
+import gleam/int
+import gleam/string
+import gwt
+import birl
+import wisp.{type Request, type Response}
+
+// access-token implementation does not 
+// require a r/w to database
 
 // Check http header for access-token
 pub fn get_auth_header(req: Request) -> #(Bool, String) {
@@ -21,8 +21,8 @@ pub fn get_auth_header(req: Request) -> #(Bool, String) {
   }
 }
 
-// verify the token
-pub fn verify_auth_header(req: Request, ctx: Context) -> Bool {
+// verify the access-token
+pub fn verify_access_token(req: Request, ctx: Context) -> Bool {
   let #(token_provided, jwt) = get_auth_header(req)
   case token_provided {
     True -> #(token_provided, jwt)
@@ -42,17 +42,18 @@ pub fn verify_auth_header(req: Request, ctx: Context) -> Bool {
   }
 }
 
-// verify the token
-pub fn get_refresh_token(ctx: Context, user_uuid: String) -> String {
-  let assert Ok(response) =
-    pgo.execute(
-      queries.get_refresh_token_by_user_id,
-      ctx.db,
-      [pgo.text(user_uuid)],
-      types.refresh_token_return_type(),
-    )
-  case list.first(response.rows) {
-    Ok(#(_id, _user_id, token)) -> token
-    Error(_) -> "no token found"
-  }
+// create a new access-token
+pub fn create_access_token(ctx: Context, id: String) -> String {
+  let fifteen_minutes = birl.to_unix(birl.now()) + 900
+  let jti = int.random(1000)
+  let jwt =
+    gwt.new()
+    |> gwt.set_subject(id)
+    |> gwt.set_issued_at(birl.to_unix(birl.now()))
+    |> gwt.set_expiration(fifteen_minutes)
+    |> gwt.set_jwt_id(int.to_string(jti))
+    |> gwt.set_issuer("access-token")
+
+  let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, ctx.secret_key)
+  jwt_with_signature
 }

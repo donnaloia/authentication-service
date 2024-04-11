@@ -49,7 +49,6 @@ pub fn main() {
       types.delete_user_return_type(),
     )
 
-  // A context is constructed to hold the database connection.
   let context = web.Context(db: db, secret_key: secret_key)
 
   // The handle_request function is partially applied with the context to make

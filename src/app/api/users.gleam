@@ -12,7 +12,9 @@ import antigone
 import gleam/bit_array
 import app/auth/check_tokens
 import gleam/io
+import youid/uuid
 import app/users/types
+import app/auth/manage_tokens
 
 pub fn get_users_view(req: Request, ctx: Context) -> Response {
   // Dispatch to the appropriate handler based on the HTTP method.
@@ -33,14 +35,15 @@ pub fn list_users(req: Request, ctx: Context) -> Response {
       let users =
         json.array(response.rows, fn(row) {
           case row {
-            #(id, username, password, email) ->
+            #(id, username, password, email) -> {
               json.object([
-                #("id", json.int(id)),
+                #("id", json.string(id)),
                 #("username", json.string(username)),
                 #("password", json.string(password)),
                 #("email", json.string(email)),
               ])
-            _ -> json.object([#("id", json.int(0))])
+            }
+            _ -> json.object([#("id", json.string("0"))])
           }
         })
       // nest users json array in a parent json object for proper api response
@@ -57,19 +60,13 @@ pub fn list_users(req: Request, ctx: Context) -> Response {
 }
 
 pub fn get_user_view(req: Request, ctx: Context, id: String) -> Response {
-  case int.parse(id) {
-    Ok(int_id) -> {
-      let id = int_id
-      case req.method {
-        Get -> get_user(req, ctx, id)
-        _ -> wisp.method_not_allowed([Get, Post])
-      }
-    }
-    Error(_) -> wisp.bad_request()
+  case req.method {
+    Get -> get_user(req, ctx, id)
+    _ -> wisp.method_not_allowed([Get, Post])
   }
 }
 
-pub fn get_user(req: Request, ctx: Context, id: Int) -> Response {
+pub fn get_user(req: Request, ctx: Context, id: String) -> Response {
   let authorized = check_tokens.verify_auth_header(req, ctx)
   case authorized {
     True -> {
@@ -77,14 +74,14 @@ pub fn get_user(req: Request, ctx: Context, id: Int) -> Response {
         pgo.execute(
           queries.get_user,
           ctx.db,
-          [pgo.int(id)],
+          [pgo.text(id)],
           types.user_return_type(),
         )
 
       case list.first(response.rows) {
-        Ok(#(id, username, password, email)) ->
+        Ok(#(id, username, password, email)) -> {
           json.object([
-            #("id", json.int(id)),
+            #("id", json.string(id)),
             #("username", json.string(username)),
             #("password", json.string(password)),
             #("email", json.string(email)),
@@ -92,7 +89,7 @@ pub fn get_user(req: Request, ctx: Context, id: Int) -> Response {
           // Return the user as a JSON object.
           |> json.to_string_builder()
           |> wisp.json_response(200)
-
+        }
         Error(Nil) ->
           json.object([
             #("error", json.string("The requested user could not be found.")),
@@ -118,6 +115,7 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
 
   let password_utf = bit_array.from_string(user.password)
   let hashed_password = antigone.hash(antigone.hasher(), password_utf)
+  let user_id = uuid.v4_string()
 
   let assert Ok(response) =
     pgo.execute(
@@ -141,6 +139,7 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
           queries.create_user,
           ctx.db,
           [
+            pgo.text(user_id),
             pgo.text(user.username),
             pgo.text(hashed_password),
             pgo.text(user.email),
@@ -150,7 +149,8 @@ pub fn create_user(req: Request, ctx: Context) -> Response {
 
       case list.first(response.rows) {
         Ok(#(id, _, _, _)) -> {
-          json.object([#("id", json.int(id))])
+          manage_tokens.create_refresh_token(ctx, id)
+          json.object([#("id", json.string(id))])
           |> json.to_string_builder()
           |> wisp.json_response(201)
         }

@@ -8,6 +8,8 @@ import gleam/result
 import wisp.{type Request, type Response}
 import gleam/pgo
 import app/sql/queries
+import app/auth/check_tokens
+import app/auth/manage_tokens
 import gleam/int
 import antigone
 import gleam/bit_array
@@ -40,8 +42,9 @@ pub fn login(req: Request, ctx: Context) -> Response {
     )
 
   case list.first(response.rows) {
-    Ok(#(id, username, password, email)) -> {
-      let signed_jwt = create_access_token(ctx, username, id)
+    Ok(#(id, username, password, _email)) -> {
+      let signed_jwt = manage_tokens.create_access_token(ctx, id)
+      let refresh_token = check_tokens.get_refresh_token(ctx, id)
       let expires_at = int.to_string(birl.to_unix(birl.now()) + 900)
       let verified_pass = antigone.verify(password_utf, password)
 
@@ -50,6 +53,7 @@ pub fn login(req: Request, ctx: Context) -> Response {
           json.object([
             #("access_token", json.string(signed_jwt)),
             #("expires_at", json.string(expires_at)),
+            #("refresh_token", json.string(refresh_token)),
           ])
           |> json.to_string_builder()
           |> wisp.json_response(200)
@@ -84,38 +88,4 @@ fn decode_login(json: Dynamic) -> Result(Login, Nil) {
 
   result
   |> result.nil_error
-}
-
-fn create_access_token(ctx: Context, username: String, id: Int) -> String {
-  let fifteen_minutes = birl.to_unix(birl.now()) + 900
-  let jti = int.random(1000)
-  let jwt =
-    gwt.new()
-    |> gwt.set_subject(username)
-    |> gwt.set_issued_at(birl.to_unix(birl.now()))
-    |> gwt.set_expiration(fifteen_minutes)
-    |> gwt.set_jwt_id(int.to_string(jti))
-
-  let return_type = dynamic.tuple3(dynamic.int, dynamic.int, dynamic.string)
-  let delete_return_type = dynamic.dynamic
-  let jwt_with_signature = gwt.to_signed_string(jwt, gwt.HS256, ctx.secret_key)
-  // Save the token to the database.
-
-  let assert Ok(response) =
-    pgo.execute(
-      queries.delete_access_token_by_user,
-      ctx.db,
-      [pgo.int(id)],
-      delete_return_type,
-    )
-  let assert Ok(response) =
-    pgo.execute(
-      queries.create_access_token,
-      ctx.db,
-      [pgo.int(id), pgo.text(jwt_with_signature)],
-      return_type,
-    )
-
-  // return the token
-  jwt_with_signature
 }

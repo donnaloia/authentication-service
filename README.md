@@ -42,7 +42,7 @@ To deploy this project locally run:
 
 | HTTP Header | Type     | Description                |
 | :-------- | :------- | :------------------------- |
-| `bearer <access_token>` | `string` | Your API access token |
+| `Bearer <access_token>` | `string` | Your API access token |
 
 #### Get Users
 
@@ -97,20 +97,24 @@ To deploy this project locally run:
 
 | HTTP Header | Type     | Description                |
 | :-------- | :------- | :------------------------- |
-| `bearer <access_token>` | `string` | Your API access token |
+| `Bearer <access_token>` | `string` | Your API access token |
 
+#### Refresh Token
 
 ```http
   POST /refresh-token
 ```
 
+| HTTP Header | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `Bearer <refresh_token>` | `string` | Your API refresh token |
 
 
 ## Todo
 
-- api doc server
 - refactor views (still learning Gleam)
+- api pagination
+- api docs server
 - add test coverage
-- nosql support (for token storage)
+- token caching
 - CLI admin tool
-

@@ -1,49 +1,45 @@
 pub const get_users = "
-  select
-    id, username, password, email
-  from
+  SELECT
+    id::text, username, password, email
+  FROM
     users"
 
 pub const get_user = "
-  select
-    id, username, password, email
-  from
+  SELECT
+    id::text, username, password, email
+  FROM
     users
-  where
+  WHERE
     id = $1"
 
 pub const get_user_by_username = "
-  select
-    id, username, password, email
-  from
+  SELECT
+    id::text, username, password, email
+  FROM
     users
-  where
+  WHERE
     username = $1"
 
 pub const create_user = "
   INSERT INTO users
-    (username, password, email)
+    (id, username, password, email)
   VALUES
-    ($1, $2, $3)
+    ($1, $2, $3, $4)
   RETURNING
-    *"
+    id::text, username, password, email"
 
-pub const create_access_token = "
-    INSERT INTO access_tokens
-      (user_id, token)
-    VALUES
-      ($1, $2)
-    RETURNING
-      *"
+pub const create_refresh_token = "
+  INSERT INTO refresh_tokens
+    (user_id, token)
+  VALUES
+    ($1, $2)
+  RETURNING
+    id, user_id::text, token"
 
-pub const delete_access_token = "
-  DELETE FROM
-    access_tokens
-  WHERE
-    token = $1"
-
-pub const delete_access_token_by_user = "
-  DELETE FROM
-    access_tokens
+pub const get_refresh_token_by_user_id = "
+  SELECT 
+    id, user_id::text, token
+  FROM
+    refresh_tokens
   WHERE
     user_id = $1"

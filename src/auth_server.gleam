@@ -3,6 +3,8 @@ import mist
 import wisp
 import app/router
 import app/web
+import app/sql/migrations
+import app/users/types
 import gleam/pgo
 import gleam/option
 import gleam/erlang/os
@@ -30,6 +32,21 @@ pub fn main() {
         database: db_auth_database,
         pool_size: 15,
       ),
+    )
+
+  let assert Ok(_) =
+    pgo.execute(
+      migrations.initialize_users_table,
+      db,
+      [],
+      types.delete_user_return_type(),
+    )
+  let assert Ok(_) =
+    pgo.execute(
+      migrations.initialize_refresh_tokens_table,
+      db,
+      [],
+      types.delete_user_return_type(),
     )
 
   // A context is constructed to hold the database connection.

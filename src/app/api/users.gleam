@@ -30,24 +30,28 @@ pub fn list_users(req: Request, ctx: Context) -> Response {
       let assert Ok(db_response) =
         pgo.execute(queries.get_users, ctx.db, [], types.user_return_type())
 
-      let users =
-        json.array(db_response.rows, fn(row) {
-          case row {
-            #(id, username, password, email) -> {
+      case list.is_empty(db_response.rows) {
+        True -> {
+          json.object([#("data", json.array([], json.object))])
+          |> json.to_string_builder()
+          |> wisp.json_response(200)
+        }
+        False -> {
+          let users =
+            json.array(db_response.rows, fn(row) {
+              let #(id, username, password, email) = row
               json.object([
                 #("id", json.string(id)),
                 #("username", json.string(username)),
                 #("password", json.string(password)),
                 #("email", json.string(email)),
               ])
-            }
-            _ -> json.object([#("id", json.string("0"))])
-          }
-        })
-      // nest users json array in a parent json object for proper api response
-      json.object([#("users", users)])
-      |> json.to_string_builder()
-      |> wisp.json_response(200)
+            })
+          json.object([#("data", users)])
+          |> json.to_string_builder()
+          |> wisp.json_response(200)
+        }
+      }
     }
     False -> {
       json.object([#("error", json.string("Unauthorized request."))])
@@ -92,7 +96,6 @@ pub fn get_user(req: Request, ctx: Context, id: String) -> Response {
           json.object([
             #("error", json.string("The requested user could not be found.")),
           ])
-          // Return a 404 Not Found response.
           |> json.to_string_builder()
           |> wisp.json_response(404)
       }

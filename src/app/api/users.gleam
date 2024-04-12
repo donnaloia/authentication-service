@@ -69,6 +69,13 @@ pub fn get_user_view(req: Request, ctx: Context, id: String) -> Response {
 }
 
 pub fn get_user(req: Request, ctx: Context, id: String) -> Response {
+  // is_verified(request)
+  // |> get_pagination() // takes request and auth boolean
+  // |> get_user_from_db()  // takes auth boolean, and page and offset
+  // |> construct_json()  // takes result from pgo.execute
+  // |> json_to_string_builder() // takes json object
+  // |> wisp.json_response()
+
   let authorized = access_tokens.verify_access_token(req, ctx)
   case authorized {
     True -> {

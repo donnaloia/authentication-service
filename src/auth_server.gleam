@@ -85,7 +85,6 @@ fn load_postgres_auth_database() -> String {
 }
 
 fn load_postgres_host() -> String {
-  "postgres"
-  // os.get_env("DB_HOST")
-  // |> result.unwrap("DB_HOST is not set.")
+  os.get_env("DB_HOST")
+  |> result.unwrap("DB_HOST is not set.")
 }

@@ -30,7 +30,7 @@ pub fn main() {
         password: option.Some(db_password),
         host: db_host,
         database: db_auth_database,
-        port: 5432,
+        port: 5433,
         pool_size: 15,
       ),
     )

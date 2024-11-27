@@ -1,14 +1,14 @@
-import gleam/erlang/process
-import mist
-import wisp
 import app/router
-import app/web
 import app/sql/migrations
 import app/users/types
-import gleam/pgo
-import gleam/option
+import app/web
 import gleam/erlang/os
+import gleam/erlang/process
+import gleam/option
+import gleam/pgo
 import gleam/result
+import mist
+import wisp
 
 pub const data_directory = "tmp/data"
 
@@ -54,6 +54,7 @@ pub fn main() {
 
   // The handle_request function is partially applied with the context to make
   // the request handler function that only takes a request.
+
   let handler = router.handle_request(_, context)
 
   let assert Ok(_) =

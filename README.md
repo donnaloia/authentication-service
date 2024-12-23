@@ -51,7 +51,6 @@ To deploy this project locally run:
 ```
 
 ```json
-// response
 {
   "data": [
     {

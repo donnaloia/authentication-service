@@ -51,8 +51,9 @@ To deploy this project locally run:
 ```
 
 ```json
+# response
 {
-    "data": [
+  "data": [
         {
             "id": "b5b21126-6ca5-4969-9590-7b45edb4a8d0",
             "username": "somereallycoolguy",

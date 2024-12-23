@@ -51,20 +51,20 @@ To deploy this project locally run:
 ```
 
 ```json
-# response
+// response
 {
   "data": [
-        {
-            "id": "b5b21126-6ca5-4969-9590-7b45edb4a8d0",
-            "username": "somereallycoolguy",
-            "email": "someone@something.com"
-        },
-        {
-            "id": "30943f82-16b6-437f-ba4e-31516e302462",
-            "username": "somelameguy",
-            "email": "someone@somewhere.com"
-        }
-    ]
+    {
+      "id": "b5b21126-6ca5-4969-9590-7b45edb4a8d0",
+      "username": "somereallycoolguy",
+      "email": "someone@something.com"
+    },
+    {
+      "id": "30943f82-16b6-437f-ba4e-31516e302462",
+      "username": "somelameguy",
+      "email": "someone@somewhere.com"
+    }
+  ]
 }
 ```
 

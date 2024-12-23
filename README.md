@@ -52,18 +52,18 @@ To deploy this project locally run:
 
 ```json
 {
-	"data": [
-		{
-			"id": "b5b21126-6ca5-4969-9590-7b45edb4a8d0",
-			"username": "somereallycoolguy",
-			"email": "someone@something.com"
-		},
-		{
-			"id": "30943f82-16b6-437f-ba4e-31516e302462",
-			"username": "somelameguy",
-			"email": "someone@somewhere.com"
-		}
-	]
+    "data": [
+        {
+            "id": "b5b21126-6ca5-4969-9590-7b45edb4a8d0",
+            "username": "somereallycoolguy",
+            "email": "someone@something.com"
+        },
+        {
+            "id": "30943f82-16b6-437f-ba4e-31516e302462",
+            "username": "somelameguy",
+            "email": "someone@somewhere.com"
+        }
+    ]
 }
 ```
 
@@ -82,7 +82,6 @@ To deploy this project locally run:
 {
   "id": "b5b21126-6ca5-4969-9590-7b45edb4a8d0",
   "username": "nextjs",
-
   "email": "ben@nextjs.com"
 }
 ```
@@ -102,7 +101,7 @@ To deploy this project locally run:
 
 ```json
 {
-	"id": "30943f82-16b6-437f-ba4e-31516e302462"
+  "id": "30943f82-16b6-437f-ba4e-31516e302462"
 }
 ```
 
@@ -122,9 +121,10 @@ To deploy this project locally run:
 
 ```json
 {
-	"access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzMDk0M2Y4Mi0xNmI2LTQzN2YtYmE0ZS0zMTUxNmUzMDI0NjIiLCJqdGkiOiIzODkiLCJpc3MiOiJhY2Nlc3MtdG9rZW4iLCJpYXQiOjE3MzQ5OTQyOTQsImV4cCI6MTczNDk5NTE5NH0.ghSF8VsdFKK9JfJCKFDaAZF5l_s4uFBeRkA8BmI1mZ8",
-	"expires_at": "1734995194",
-	"refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzMDk0M2Y4Mi0xNmI2LTQzN2YtYmE0ZS0zMTUxNmUzMDI0NjIiLCJqdGkiOiI3MDAiLCJpc3MiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzM0OTkyMTcxLCJleHAiOjE3Mzc2MjA0NTl9.YW1R6AmLj2dAleczLMnTTDF9oOaIprk-oeIIlejchlA"
+  "access_token": 
+"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzMDk0M2Y4Mi0xNmI2LTQzN2YtYmE0ZS0zMTUxNmUzMDI0NjIiLCJqdGkiOiIzODkiLCJpc3MiOiJhY2Nlc3MtdG9rZW4iLCJpYXQiOjE3MzQ5OTQyOTQsImV4cCI6MTczNDk5NTE5NH0.ghSF8VsdFKK9JfJCKFDaAZF5l_s4uFBeRkA8BmI1mZ8",
+  "expires_at": "1734995194",
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzMDk0M2Y4Mi0xNmI2LTQzN2YtYmE0ZS0zMTUxNmUzMDI0NjIiLCJqdGkiOiI3MDAiLCJpc3MiOiJyZWZyZXNoLXRva2VuIiwiaWF0IjoxNzM0OTkyMTcxLCJleHAiOjE3Mzc2MjA0NTl9.YW1R6AmLj2dAleczLMnTTDF9oOaIprk-oeIIlejchlA"
 }
 ```
 

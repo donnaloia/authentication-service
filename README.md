@@ -1,7 +1,7 @@
 
 # Auth Service
 
-A modern standalone drop-in auth microservice written in gleam.
+A modern standalone drop-in auth microservice written in gleam. 
 ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
 
 ## Features

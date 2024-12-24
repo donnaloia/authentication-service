@@ -5,7 +5,7 @@ A modern standalone drop-in auth microservice written in gleam.
 
 ![Erlang](https://img.shields.io/badge/Erlang-white.svg?style=for-the-badge&logo=erlang&logoColor=a90533)![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
-![example workflow](https://github.com/donnaloia/authentication-service/actions/workflows/docker-build-push.yml/badge.svg)
+![example workflow](https://github.com/donnaloia/authentication-service/actions/workflows/docker-build-push.yml/badge.svg)[![GitHub Release](https://img.shields.io/github/release/tterb/PlayMusic.svg?style=flat)]()  
 
 ## Features
 

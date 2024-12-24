@@ -3,7 +3,7 @@
 
 A modern standalone drop-in auth microservice written in gleam. 
 
-![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white) ![example workflow](https://github.com/donnaloia/authentication-service/actions/workflows/docker-build-push.yml/badge.svg)
+![Erlang](https://img.shields.io/badge/Erlang-white.svg?style=for-the-badge&logo=erlang&logoColor=a90533)![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white) ![example workflow](https://github.com/donnaloia/authentication-service/actions/workflows/docker-build-push.yml/badge.svg)
 
 ## Features
 
